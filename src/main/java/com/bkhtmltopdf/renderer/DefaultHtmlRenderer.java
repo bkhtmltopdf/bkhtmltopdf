@@ -45,7 +45,7 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
         cefHandler.createCefBrowser(cefClient, url);
 
         try {
-            return future.get(getTimeout().toMillis(), TimeUnit.MILLISECONDS);
+            return future.get(getTimeout(options).toMillis(), TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Due to an internal system error, the HTML failed to load", e);
         } catch (TimeoutException e) {
@@ -137,8 +137,11 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
         return future;
     }
 
-    protected Duration getTimeout() {
-        return config.getRenderer().getTimeout();
+    protected Duration getTimeout(RendererOptions options) {
+        if (options.getOptions().getTimeout() == null) {
+            return config.getRenderer().getTimeout();
+        }
+        return Duration.ofMillis(options.getOptions().getTimeout());
     }
 
 

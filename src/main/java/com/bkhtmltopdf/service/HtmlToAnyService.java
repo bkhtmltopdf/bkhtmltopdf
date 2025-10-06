@@ -102,8 +102,11 @@ public abstract class HtmlToAnyService {
     }
 
 
-    protected Duration getTimeout() {
-        return config.getRenderer().getTimeout();
+    protected Duration getTimeout(RendererOptions options) {
+        if (options.getOptions().getTimeout() == null) {
+            return config.getRenderer().getTimeout();
+        }
+        return Duration.ofMillis(options.getOptions().getTimeout());
     }
 
 

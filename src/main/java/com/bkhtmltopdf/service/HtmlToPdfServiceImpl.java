@@ -41,7 +41,7 @@ public class HtmlToPdfServiceImpl extends HtmlToAnyService implements HtmlToPdfS
         cefBrowser.printToPDF(pdf.getAbsolutePath(), getCefPdfPrintSettings(options), (path, ok) -> future.complete(ok));
 
         try {
-            if (future.get(getTimeout().toMillis(), TimeUnit.MILLISECONDS)) {
+            if (future.get(getTimeout(options).toMillis(), TimeUnit.MILLISECONDS)) {
                 return pdf;
             } else {
                 throw new IllegalStateException("The print to PDF failed due to an unknown error");

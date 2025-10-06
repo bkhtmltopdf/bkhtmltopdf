@@ -42,6 +42,13 @@ public class RendererOptions {
          */
         @JsonProperty("waitUntil")
         private String waitUntil;
+
+
+        /**
+         * timeout, milliseconds, default is 15000
+         */
+        @JsonProperty("timeout")
+        private Long timeout;
     }
 
 }
