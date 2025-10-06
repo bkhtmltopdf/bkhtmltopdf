@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: bkhtmltopdf
+    version: @project.version@
+  servlet:
+    multipart:
+      enabled: false
+
+bkhtmltopdf:
+  renderer:
+    timeout: 15s
+  controller:
+    enabled: true
+
