@@ -13,3 +13,9 @@ This online website supports HTML code input for PDF generation. You can enter a
 CSS, and JavaScript code.
 
 See https://demo.bkhtmltopdf.com
+
+## Performance
+
+bkhtmltopdf delivers exceptional performance, rendering a 10-page PDF takes only about **60 milliseconds**.
+
+See https://www.bkhtmltopdf.com/performance
