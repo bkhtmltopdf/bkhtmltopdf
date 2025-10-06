@@ -22,6 +22,7 @@ import org.cef.misc.StringRef;
 import org.cef.network.CefRequest;
 import org.cef.network.CefResponse;
 import org.cef.network.CefURLRequest;
+import org.springframework.http.HttpMethod;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,22 +75,26 @@ public abstract class HtmlToAnyService {
         cefClient.addRequestHandler(new CefRequestHandlerAdapter() {
             @Override
             public CefResourceRequestHandler getResourceRequestHandler(CefBrowser browser, CefFrame frame, CefRequest request, boolean isNavigation, boolean isDownload, String requestInitiator, BoolRef disableDefaultHandling) {
-                final String url = request.getURL();
-                if (StringUtils.startsWithIgnoreCase(url, "file")) {
-                    try {
-                        final URI uri = URI.create(url);
-                        final String path = FilenameUtils.normalize(uri.getPath());
-                        if (path.startsWith(tempService.getTemporaryFile())) {
-                            return super.getResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling);
+
+                if (StringUtils.equalsAnyIgnoreCase(request.getMethod(), HttpMethod.GET.name(), HttpMethod.OPTIONS.name())) {
+                    final String url = request.getURL();
+                    if (StringUtils.startsWithIgnoreCase(url, "file")) {
+                        try {
+                            final URI uri = URI.create(url);
+                            final String path = FilenameUtils.normalize(uri.getPath());
+                            if (path.startsWith(tempService.getTemporaryFile())) {
+                                return super.getResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling);
+                            }
+                        } catch (Throwable e) {
+                            if (log.isErrorEnabled()) {
+                                log.error("Invalid URL: {}", url, e);
+                            }
                         }
-                    } catch (Throwable e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Invalid URL: {}", url, e);
-                        }
+                    } else if (StringUtils.startsWithIgnoreCase(url, "http:") || StringUtils.startsWithIgnoreCase(url, "https:")) {
+                        return super.getResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling);
                     }
-                } else if (StringUtils.startsWithIgnoreCase(url, "http:") || StringUtils.startsWithIgnoreCase(url, "https:")) {
-                    return super.getResourceRequestHandler(browser, frame, request, isNavigation, isDownload, requestInitiator, disableDefaultHandling);
                 }
+
                 return new HtmlToPdfServiceImpl.BlockCefResourceRequestHandler();
             }
         });

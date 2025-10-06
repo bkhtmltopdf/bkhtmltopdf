@@ -1,5 +1,6 @@
 package com.bkhtmltopdf.controller;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ class FontController extends BaseController {
     @Setter
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     static class FontInfo {
+        @JsonProperty("family")
         @EqualsAndHashCode.Include
         private String family;
     }
