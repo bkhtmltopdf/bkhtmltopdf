@@ -18,4 +18,4 @@ See https://demo.bkhtmltopdf.com
 
 bkhtmltopdf delivers exceptional performance, rendering a 10-page PDF takes only about **60 milliseconds**.
 
-See https://www.bkhtmltopdf.com/performance
+See https://bkhtmltopdf.com/performance
