@@ -14,10 +14,16 @@ public class RendererOptions {
     private String id = UUID.randomUUID().toString();
 
     @NonNull
+    @JsonProperty("pdf")
     private PDF pdf = new PDF();
 
     @NonNull
+    @JsonProperty("options")
     private Options options = new Options();
+
+    @NonNull
+    @JsonProperty("markdown")
+    private Markdown markdown = new Markdown();
 
     @Getter
     @Setter
@@ -49,6 +55,17 @@ public class RendererOptions {
          */
         @JsonProperty("timeout")
         private Long timeout;
+    }
+
+    @Getter
+    @Setter
+    public static class Markdown {
+        /**
+         * COMMON | GFM | SFM
+         */
+        @JsonProperty("flavour")
+        private String flavour;
+
     }
 
 }

@@ -30,6 +30,11 @@ public class DefaultRendererOptionsProvider implements RendererOptionsProvider {
             options.setOptions(objectMapper.treeToValue(opts, RendererOptions.Options.class));
         }
 
+        final JsonNode markdown = json.get("markdown");
+        if (markdown != null && markdown.isObject()) {
+            options.setMarkdown(objectMapper.treeToValue(markdown, RendererOptions.Markdown.class));
+        }
+
         options.setId((Optional.ofNullable(json.get("id")))
                 .map(JsonNode::asText)
                 .orElseGet(() -> UUID.randomUUID().toString()));

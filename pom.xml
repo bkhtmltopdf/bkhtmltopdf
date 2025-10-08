@@ -49,9 +49,16 @@
         <lombok.version>1.18.40</lombok.version>
         <jcefmaven.version>135.0.20</jcefmaven.version>
         <jspecify.version>1.0.0</jspecify.version>
+        <markdown.version>0.7.3</markdown.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>markdown-jvm</artifactId>
+            <version>${markdown.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jspecify</groupId>
             <artifactId>jspecify</artifactId>
