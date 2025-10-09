@@ -1,6 +1,6 @@
 ## bkhtmltopdf
 
-bkhtmltopdf is an open-source (AGPL) `HTML-to-PDF` program that can automatically convert HTML into PDF files.
+bkhtmltopdf is an open-source (LGPLv3) `HTML-to-PDF` program that can automatically convert HTML into PDF files.
 
 bkhtmltopdf uses the [Chromium](https://www.chromium.org) Blink rendering engine. For community version deployments, a
 display server is required. If you need “headless” operation, please purchase the [enterprise version](https://bkhtmltopdf.com/pricing).

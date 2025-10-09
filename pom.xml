@@ -26,10 +26,11 @@
 
     <licenses>
         <license>
-            <name>AGPL-3.0</name>
-            <url>https://opensource.org/license/agpl-v3</url>
+            <name>LGPL-3.0</name>
+            <url>https://opensource.org/license/lgpl-3-0</url>
         </license>
     </licenses>
+
 
     <developers>
         <developer>
