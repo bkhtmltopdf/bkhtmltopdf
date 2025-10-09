@@ -22,10 +22,14 @@ public class BaseController {
     @Resource
     protected HttpServletResponse response;
 
-    protected ResponseEntity<FileSystemResource> responseFile(File pdf,MediaType mediaType) {
+    protected ResponseEntity<FileSystemResource> responseFile(File file, MediaType mediaType) {
+        return responseFile(file, mediaType, ContentDisposition.inline().build().toString());
+    }
+
+    protected ResponseEntity<FileSystemResource> responseFile(File file, MediaType mediaType, String disposition) {
         return ResponseEntity.ok().contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().build().toString())
-                .body(new FileSystemResource(pdf) {
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .body(new FileSystemResource(file) {
                     @NonNull
                     @Override
                     public InputStream getInputStream() throws IOException {
@@ -35,7 +39,7 @@ public class BaseController {
                                 try {
                                     super.close();
                                 } finally {
-                                    FileUtils.deleteQuietly(pdf);
+                                    FileUtils.deleteQuietly(file);
                                 }
                             }
                         };

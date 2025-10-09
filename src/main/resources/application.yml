@@ -4,7 +4,9 @@ spring:
     version: @project.version@
   servlet:
     multipart:
-      enabled: false
+      enabled: true
+      max-file-size: 32MB
+      max-request-size: 32MB
 
 bkhtmltopdf:
   renderer:

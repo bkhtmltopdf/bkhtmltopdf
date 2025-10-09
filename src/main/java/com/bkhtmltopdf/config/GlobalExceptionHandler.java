@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -28,7 +29,7 @@ class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(value = {RestClientException.class, HttpRequestMethodNotSupportedException.class}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ExceptionHandler(value = {RestClientException.class, MissingServletRequestPartException.class, HttpRequestMethodNotSupportedException.class}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Object safeException(Exception e) {
         return Map.of("message", e.getMessage());
