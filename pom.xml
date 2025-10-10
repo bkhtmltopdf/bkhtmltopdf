@@ -47,6 +47,7 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.skip>false</spring-boot.skip>
         <lombok.version>1.18.40</lombok.version>
         <jcefmaven.version>135.0.20</jcefmaven.version>
         <jspecify.version>1.0.0</jspecify.version>
@@ -148,6 +149,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${spring-boot.skip}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

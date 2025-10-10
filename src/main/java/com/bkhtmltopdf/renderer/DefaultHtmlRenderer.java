@@ -2,25 +2,24 @@ package com.bkhtmltopdf.renderer;
 
 import com.bkhtmltopdf.cef.CefHandler;
 import com.bkhtmltopdf.config.BkHtmlToPdfConfig;
+import com.bkhtmltopdf.service.TempService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.cef.CefClient;
 import org.cef.CefSettings;
 import org.cef.browser.CefBrowser;
-import org.cef.browser.CefFrame;
 import org.cef.handler.CefDisplayHandlerAdapter;
-import org.cef.handler.CefLoadHandlerAdapter;
-import org.cef.network.CefRequest;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 @Slf4j
 public class DefaultHtmlRenderer implements HtmlRenderer {
@@ -30,12 +29,21 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
     private CefHandler cefHandler;
     @Resource
     private BkHtmlToPdfConfig config;
+    @Resource
+    private TempService tempService;
 
 
     @NonNull
     @Override
-    public CefBrowser render(@NonNull CefClient cefClient, @NonNull File html, @NonNull RendererOptions options) {
-        return createCefBrowser(cefClient, html.toURI().toString(), options);
+    public CefBrowser render(@NonNull CefClient cefClient, @NonNull String html, @NonNull RendererOptions options) {
+        final File file = tempService.createTempFile("html");
+        try (var fos = new BufferedOutputStream(new FileOutputStream(file))) {
+            injectPrintCode(fos, options);
+            IOUtils.write(html, fos, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+        return createCefBrowser(cefClient, file.toURI().toString(), options);
     }
 
     protected CefBrowser createCefBrowser(CefClient cefClient, String url, RendererOptions options) {
@@ -55,10 +63,23 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
 
     protected Future<CefBrowser> registerPrintHandler(CefClient cefClient, String url, RendererOptions options) {
         final var future = new CompletableFuture<CefBrowser>();
-        final String printFlag = "print: " + options.getId();
-        final String waitUntil = options.getOptions().getWaitUntil();
+        final Consumer<Object> callback = new Consumer<>() {
+            @Override
+            public synchronized void accept(Object object) {
+                if (future.isCancelled() || future.isDone() || future.isCompletedExceptionally()) {
+                    return;
+                }
+                if (object instanceof CefBrowser browser) {
+                    future.complete(browser);
+                } else if (object instanceof Throwable throwable) {
+                    future.completeExceptionally(throwable);
+                }
+            }
+        };
 
         cefClient.addDisplayHandler(new CefDisplayHandlerAdapter() {
+            private final String printFlag = "print: " + options.getId();
+
             @Override
             public boolean onConsoleMessage(CefBrowser browser, CefSettings.LogSeverity level, String message, String source, int line) {
 
@@ -72,67 +93,13 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
                     log.trace(message);
                 }
 
-                if (printFlag.equals(message) || ("manual".equals(waitUntil) && "print".equals(message))) {
-                    if (future.isCancelled() || future.isDone() || future.isCompletedExceptionally()) {
-                        return false;
-                    }
-                    future.complete(browser);
+                if (printFlag.equals(message)) {
+                    callback.accept(browser);
                 }
 
                 return false;
             }
         });
-
-        cefClient.addLoadHandler(new CefLoadHandlerAdapter() {
-            private final AtomicBoolean isInjected = new AtomicBoolean(false);
-
-            @Override
-            public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
-                if (frame.isMain()) {
-                    if (StringUtils.equals(waitUntil, "domcontentloaded")) {
-                        if (isInjected.compareAndSet(false, true)) {
-                            browser.executeJavaScript("""
-                                    const message = '%s'
-                                    if (document.readyState === 'loading') {
-                                        window.addEventListener('DOMContentLoaded', () => {
-                                            console.debug(message)
-                                        });
-                                    } else {
-                                        console.debug(message)
-                                    }
-                                    """.formatted(printFlag), browser.getURL(), 0);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onLoadError(CefBrowser browser, CefFrame frame, ErrorCode errorCode, String errorText, String failedUrl) {
-                if (future.isCancelled() || future.isDone() || future.isCompletedExceptionally()) {
-                    return;
-                }
-
-                if (frame.isMain()) {
-                    future.completeExceptionally(new IllegalStateException(errorText));
-                }
-            }
-
-
-            @Override
-            public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
-                if (future.isCancelled() || future.isDone() || future.isCompletedExceptionally()) {
-                    return;
-                }
-
-                if (frame.isMain()) {
-                    if (StringUtils.equals(waitUntil, "load") || StringUtils.isBlank(waitUntil)) {
-                        future.complete(browser);
-                    }
-                }
-            }
-
-        });
-
 
         return future;
     }
@@ -144,6 +111,36 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
         return Duration.ofMillis(options.getOptions().getTimeout());
     }
 
+    protected void injectPrintCode(OutputStream os, RendererOptions options) throws IOException {
+        final var waitUntil = options.getOptions().getWaitUntil();
+        final StringBuilder sb = new StringBuilder("<script>");
+
+        sb.append("""
+                Object.defineProperty(window, 'print', {
+                    value: function() {
+                        console.log(`%s`)
+                    },
+                    writable: false,
+                    configurable: false
+                });
+                """.formatted("print: " + options.getId()));
+
+        if (waitUntil == null || waitUntil == RendererOptions.WaitUntil.load) {
+            sb.append("window.addEventListener('load', window.print);");
+        } else if (waitUntil == RendererOptions.WaitUntil.domcontentloaded) {
+            sb.append("""
+                    if (document.readyState === 'loading') {
+                        window.addEventListener('DOMContentLoaded', window.print);
+                    } else {
+                        window.print();
+                    }
+                    """);
+        }
+
+        sb.append("</script>");
+
+        os.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+    }
 
     @Configuration
     static class DefaultHtmlRendererConfig {

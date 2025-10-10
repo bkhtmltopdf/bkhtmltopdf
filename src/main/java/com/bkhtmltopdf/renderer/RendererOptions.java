@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -44,10 +45,11 @@ public class RendererOptions {
     @Setter
     public static class Options {
         /**
-         * load | domcontentloaded | manual
+         * @see WaitUntil
          */
+        @Nullable
         @JsonProperty("waitUntil")
-        private String waitUntil;
+        private WaitUntil waitUntil;
 
 
         /**
@@ -68,4 +70,8 @@ public class RendererOptions {
 
     }
 
+
+    public enum WaitUntil {
+        load, domcontentloaded, manual
+    }
 }

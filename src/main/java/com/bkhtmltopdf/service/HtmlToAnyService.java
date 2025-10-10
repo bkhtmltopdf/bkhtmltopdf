@@ -6,9 +6,7 @@ import com.bkhtmltopdf.renderer.HtmlRenderer;
 import com.bkhtmltopdf.renderer.RendererOptions;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cef.CefClient;
 import org.cef.browser.CefBrowser;
@@ -25,9 +23,7 @@ import org.cef.network.CefURLRequest;
 import org.springframework.http.HttpMethod;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Slf4j
@@ -42,27 +38,16 @@ public abstract class HtmlToAnyService {
     private HtmlRenderer htmlRenderer;
 
     protected File print(String html, RendererOptions options) {
-        final File file = tempService.createTempFile("html");
-        try (var fis = new FileOutputStream(file)) {
-            IOUtils.write(html, fis, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-
+        final CefClient cefClient = createCefClient();
         try {
-            final CefClient cefClient = createCefClient();
+            final CefBrowser browser = htmlRenderer.render(cefClient, html, options);
             try {
-                final CefBrowser browser = htmlRenderer.render(cefClient, file, options);
-                try {
-                    return to(browser, options);
-                } finally {
-                    cefHandler.disposeCefBrowser(browser);
-                }
+                return to(browser, options);
             } finally {
-                cefHandler.disposeCefClient(cefClient);
+                cefHandler.disposeCefBrowser(browser);
             }
         } finally {
-            FileUtils.deleteQuietly(file);
+            cefHandler.disposeCefClient(cefClient);
         }
     }
 
