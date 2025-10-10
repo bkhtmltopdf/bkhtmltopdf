@@ -83,14 +83,16 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
             @Override
             public boolean onConsoleMessage(CefBrowser browser, CefSettings.LogSeverity level, String message, String source, int line) {
 
-                if (level == CefSettings.LogSeverity.LOGSEVERITY_ERROR) {
-                    log.error(message);
-                } else if (level == CefSettings.LogSeverity.LOGSEVERITY_WARNING) {
-                    log.warn(message);
-                } else if (level == CefSettings.LogSeverity.LOGSEVERITY_INFO) {
-                    log.info(message);
-                } else if (level == CefSettings.LogSeverity.LOGSEVERITY_VERBOSE) {
-                    log.trace(message);
+                if (config.getConsole().isEnabled()) {
+                    if (level == CefSettings.LogSeverity.LOGSEVERITY_ERROR) {
+                        log.error(message);
+                    } else if (level == CefSettings.LogSeverity.LOGSEVERITY_WARNING) {
+                        log.warn(message);
+                    } else if (level == CefSettings.LogSeverity.LOGSEVERITY_INFO) {
+                        log.info(message);
+                    } else if (level == CefSettings.LogSeverity.LOGSEVERITY_VERBOSE) {
+                        log.trace(message);
+                    }
                 }
 
                 if (printFlag.equals(message)) {

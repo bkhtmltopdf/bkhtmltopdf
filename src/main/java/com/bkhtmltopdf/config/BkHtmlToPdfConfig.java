@@ -15,6 +15,7 @@ public class BkHtmlToPdfConfig {
 
     private final Controller controller = new Controller();
     private final Renderer renderer = new Renderer();
+    private final Console console = new Console();
 
 
     @Getter
@@ -27,5 +28,11 @@ public class BkHtmlToPdfConfig {
     @Setter
     public static class Controller {
         private boolean enabled = true;
+    }
+
+    @Getter
+    @Setter
+    public static class Console {
+        private boolean enabled = false;
     }
 }
