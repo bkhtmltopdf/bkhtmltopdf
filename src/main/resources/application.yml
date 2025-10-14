@@ -12,5 +12,14 @@ bkhtmltopdf:
   renderer:
     timeout: 15s
   controller:
-    enabled: true
+    html-to-pdf:
+      enabled: true
+    fonts:
+      enabled: true
+    md-to-pdf:
+      enabled: true
+    pdf-to-jpg:
+      enabled: true
+  console:
+    enabled: false
 

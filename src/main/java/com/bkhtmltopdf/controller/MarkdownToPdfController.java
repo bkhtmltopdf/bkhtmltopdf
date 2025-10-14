@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@ConditionalOnBooleanProperty("bkhtmltopdf.controller.enabled")
+@ConditionalOnBooleanProperty("bkhtmltopdf.controller.md-to-pdf.enabled")
 class MarkdownToPdfController extends BaseController {
 
 

@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @RestController
-@ConditionalOnBooleanProperty("bkhtmltopdf.controller.enabled")
+@ConditionalOnBooleanProperty("bkhtmltopdf.controller.fonts.enabled")
 class FontController extends BaseController {
 
     @Getter

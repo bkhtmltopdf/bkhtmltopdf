@@ -36,7 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @RestController
-@ConditionalOnBooleanProperty("bkhtmltopdf.controller.enabled")
+@ConditionalOnBooleanProperty("bkhtmltopdf.controller.pdf-to-jpg.enabled")
 class PdfToJpgController extends BaseController {
 
     @Resource
