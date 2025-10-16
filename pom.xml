@@ -47,7 +47,7 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.skip>false</spring-boot.skip>
+        <spring-boot.skip>true</spring-boot.skip>
         <lombok.version>1.18.40</lombok.version>
         <jcefmaven.version>135.0.20</jcefmaven.version>
         <jspecify.version>1.0.0</jspecify.version>

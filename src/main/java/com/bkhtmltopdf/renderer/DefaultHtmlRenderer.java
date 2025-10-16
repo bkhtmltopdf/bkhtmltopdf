@@ -5,6 +5,7 @@ import com.bkhtmltopdf.config.BkHtmlToPdfConfig;
 import com.bkhtmltopdf.service.TempService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.cef.CefClient;
 import org.cef.CefSettings;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.*;
+import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.*;
@@ -43,7 +45,13 @@ public class DefaultHtmlRenderer implements HtmlRenderer {
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
-        return createCefBrowser(cefClient, file.toURI().toString(), options);
+        final CefBrowser browser = createCefBrowser(cefClient, file.toURI().toString(), options);
+        return (CefBrowser) Proxy.newProxyInstance(CefBrowser.class.getClassLoader(), new Class[]{CefBrowser.class}, (proxy, method, args) -> {
+            if ("close".equals(method.getName())) {
+                FileUtils.deleteQuietly(file);
+            }
+            return method.invoke(browser, args);
+        });
     }
 
     protected CefBrowser createCefBrowser(CefClient cefClient, String url, RendererOptions options) {
