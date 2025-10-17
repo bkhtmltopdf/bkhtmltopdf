@@ -19,3 +19,17 @@ See https://demo.bkhtmltopdf.com
 bkhtmltopdf delivers exceptional performance, rendering a 10-page PDF takes only about **60 milliseconds**.
 
 See https://bkhtmltopdf.com/performance
+
+## Deployment
+
+**Community Version**: Licensed under **LGPLv3**
+
+```shell
+JDK21/bin/java -jar bkhtmltopdf-x.y.z.jar
+```
+
+**Enterprise Version**: For **evaluation purposes only**
+
+```shell
+docker run --shm-size=256mb -it --rm -p 8080:8080 bkhtmltopdf/bkhtmltopdf-ee:latest
+```
