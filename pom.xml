@@ -52,7 +52,7 @@
         <jcefmaven.version>135.0.20</jcefmaven.version>
         <jspecify.version>1.0.0</jspecify.version>
         <markdown.version>0.7.3</markdown.version>
-        <pdfbox.version>3.0.5</pdfbox.version>
+        <pdfbox.version>3.0.6</pdfbox.version>
     </properties>
 
     <dependencies>
