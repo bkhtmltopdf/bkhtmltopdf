@@ -1,7 +1,7 @@
 package com.bkhtmltopdf.renderer;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,7 +36,7 @@ public class DefaultRendererOptionsProvider implements RendererOptionsProvider {
         }
 
         options.setId((Optional.ofNullable(json.get("id")))
-                .map(JsonNode::asText)
+                .map(JsonNode::asString)
                 .orElseGet(() -> UUID.randomUUID().toString()));
 
         return options;

@@ -3,7 +3,7 @@ package com.bkhtmltopdf.controller;
 import com.bkhtmltopdf.renderer.RendererOptions;
 import com.bkhtmltopdf.renderer.RendererOptionsProvider;
 import com.bkhtmltopdf.service.HtmlToPdfService;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
@@ -28,7 +28,7 @@ class HtmlToPdfController extends BaseController {
     @PostMapping(value = "/html-to-pdf")
     Object html2pdf(@RequestBody JsonNode json) {
         final RendererOptions options = rendererOptionsProvider.parse(json);
-        final var html = Optional.ofNullable(json.get("text")).map(JsonNode::asText)
+        final var html = Optional.ofNullable(json.get("text")).map(JsonNode::asString)
                 .orElse(StringUtils.EMPTY);
         return responseFile(htmlToPdfService.print(html, options), MediaType.APPLICATION_PDF);
     }
